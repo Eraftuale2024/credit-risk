@@ -1,0 +1,1398 @@
+{
+ "contract_version": "1.0.0",
+ "fit_cutoff": "2014-12-31",
+ "fields": [
+  {
+   "name": "id",
+   "type": "str",
+   "min": null,
+   "max": null,
+   "cleaning": "unique loan id",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "unique after 600 repeated ids removed"
+  },
+  {
+   "name": "issue_d",
+   "type": "date",
+   "min": "2013-01-01",
+   "max": "2016-12-31",
+   "cleaning": "parsed from Mon-YYYY, YYYY-MM-DD or MM/YYYY",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "0 parse failures; 1,200 odd formats repaired"
+  },
+  {
+   "name": "loan_amnt",
+   "type": "float",
+   "min": 1000,
+   "max": 40000,
+   "cleaning": "divided by 10 when 10x the amount implied by installment, rate and term",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "300 inflated amounts repaired; payment formula matches the rest"
+  },
+  {
+   "name": "term",
+   "type": "int",
+   "min": 36,
+   "max": 60,
+   "cleaning": "trimmed; digits extracted ('36 months' -> 36)",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "only 36 and 60"
+  },
+  {
+   "name": "int_rate",
+   "type": "float",
+   "min": 5,
+   "max": 31,
+   "cleaning": "none",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "consistent with installment; platform output, not independent"
+  },
+  {
+   "name": "installment",
+   "type": "float",
+   "min": 1,
+   "max": 1700,
+   "cleaning": "none",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "matches payment formula; 12 inconsistent loans dropped"
+  },
+  {
+   "name": "grade",
+   "type": "category",
+   "min": null,
+   "max": null,
+   "cleaning": "trimmed",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "accurate; platform output, excluded from the main model",
+   "allowed_values": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G"
+   ]
+  },
+  {
+   "name": "sub_grade",
+   "type": "category",
+   "min": null,
+   "max": null,
+   "cleaning": "trimmed",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "accurate; platform output, excluded from the main model",
+   "allowed_values": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "B1",
+    "B2",
+    "B3",
+    "B4",
+    "B5",
+    "C1",
+    "C2",
+    "C3",
+    "C4",
+    "C5",
+    "D1",
+    "D2",
+    "D3",
+    "D4",
+    "D5",
+    "E1",
+    "E2",
+    "E3",
+    "E4",
+    "E5",
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "G1",
+    "G2",
+    "G3",
+    "G4",
+    "G5"
+   ]
+  },
+  {
+   "name": "purpose",
+   "type": "category",
+   "min": null,
+   "max": null,
+   "cleaning": "trimmed; 9 rare purposes merged into other (<300 loans)",
+   "missing_strategy": "reject",
+   "reliability": "medium",
+   "reliability_reason": "borrower-selected; no inconsistencies found",
+   "allowed_values": [
+    "car",
+    "credit_card",
+    "debt_consolidation",
+    "home_improvement",
+    "house",
+    "major_purchase",
+    "medical",
+    "moving",
+    "other",
+    "renewable_energy",
+    "small_business",
+    "vacation",
+    "wedding"
+   ]
+  },
+  {
+   "name": "application_type",
+   "type": "category",
+   "min": null,
+   "max": null,
+   "cleaning": "trimmed",
+   "missing_strategy": "reject",
+   "reliability": "medium",
+   "reliability_reason": "only Individual before 2015; Joint App appears in 2015 (16) and 2016 (96)",
+   "allowed_values": [
+    "Individual",
+    "Joint App"
+   ]
+  },
+  {
+   "name": "emp_length",
+   "type": "category",
+   "min": null,
+   "max": null,
+   "cleaning": "mapped to <1y, 1-9y, 10+y",
+   "missing_strategy": "own category MISSING",
+   "reliability": "low",
+   "reliability_reason": "self-reported; 4.8% blank; weak signal (IV 0.010)",
+   "allowed_values": [
+    "1 year",
+    "10+ years",
+    "2 years",
+    "3 years",
+    "4 years",
+    "5 years",
+    "6 years",
+    "7 years",
+    "8 years",
+    "9 years",
+    "< 1 year"
+   ]
+  },
+  {
+   "name": "home_ownership",
+   "type": "category",
+   "min": null,
+   "max": null,
+   "cleaning": "trimmed",
+   "missing_strategy": "reject",
+   "reliability": "medium",
+   "reliability_reason": "self-reported; 50% say MORTGAGE, 61% have a mortgage account",
+   "allowed_values": [
+    "MORTGAGE",
+    "OWN",
+    "RENT"
+   ]
+  },
+  {
+   "name": "annual_inc",
+   "type": "float",
+   "min": 0,
+   "max": 10000000,
+   "cleaning": "values below 1,000 treated as thousands (x1000); capped at p99.5 = 300,000.00, then log1p",
+   "missing_strategy": "reject",
+   "reliability": "medium",
+   "reliability_reason": "self-reported; about half are round figures; 899 unit errors fixed"
+  },
+  {
+   "name": "verification_status",
+   "type": "category",
+   "min": null,
+   "max": null,
+   "cleaning": "trimmed",
+   "missing_strategy": "reject",
+   "reliability": "medium",
+   "reliability_reason": "records the platform's choice of whom to verify, not a borrower trait",
+   "allowed_values": [
+    "Not Verified",
+    "Source Verified",
+    "Verified"
+   ]
+  },
+  {
+   "name": "dti",
+   "type": "float",
+   "min": 0,
+   "max": 100,
+   "cleaning": "no cap (loans above the old p99.5 default at 34.5%)",
+   "missing_strategy": "reject",
+   "reliability": "medium",
+   "reliability_reason": "computed from stated income; shifted up in 2015; 3 values above 100 seen (1 in 2015, 2 in 2016)"
+  },
+  {
+   "name": "addr_state",
+   "type": "category",
+   "min": null,
+   "max": null,
+   "cleaning": "trimmed, uppercased, full names mapped to codes; 31 small states merged",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "accurate but sensitive; not a model input, monitoring only"
+  },
+  {
+   "name": "earliest_cr_line",
+   "type": "date",
+   "min": "1940-01-01",
+   "max": "2016-12-31",
+   "cleaning": "three date formats; set missing + flag cr_line_invalid if after issue_d",
+   "missing_strategy": "median history 179 months",
+   "reliability": "medium",
+   "reliability_reason": "300 impossible dates removed; shifted dates that stay valid cannot be detected"
+  },
+  {
+   "name": "fico_range_low",
+   "type": "float",
+   "min": 300,
+   "max": 850,
+   "cleaning": "swapped with high when low > high",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "150 swaps repaired; high = low + 4 in all other rows"
+  },
+  {
+   "name": "fico_range_high",
+   "type": "float",
+   "min": 300,
+   "max": 850,
+   "cleaning": "swapped with low when low > high",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "see fico_range_low"
+  },
+  {
+   "name": "inq_last_6mths",
+   "type": "int",
+   "min": 0,
+   "max": 50,
+   "cleaning": "none",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "bureau count; no contradictions"
+  },
+  {
+   "name": "delinq_2yrs",
+   "type": "int",
+   "min": 0,
+   "max": 50,
+   "cleaning": "none",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "bureau count; no contradictions"
+  },
+  {
+   "name": "mths_since_last_delinq",
+   "type": "float",
+   "min": 0,
+   "max": 200,
+   "cleaning": "none",
+   "missing_strategy": "blank means never delinquent; flag never_delinquent",
+   "reliability": "medium",
+   "reliability_reason": "46% blank, structural; 0.27% contradict delinq_2yrs"
+  },
+  {
+   "name": "pub_rec",
+   "type": "int",
+   "min": 0,
+   "max": 50,
+   "cleaning": "none",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "bureau count"
+  },
+  {
+   "name": "pub_rec_bankruptcies",
+   "type": "int",
+   "min": 0,
+   "max": 20,
+   "cleaning": "none",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "bureau count; never above pub_rec"
+  },
+  {
+   "name": "open_acc",
+   "type": "int",
+   "min": 0,
+   "max": 100,
+   "cleaning": "none",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "never above total_acc"
+  },
+  {
+   "name": "total_acc",
+   "type": "int",
+   "min": 0,
+   "max": 200,
+   "cleaning": "none",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "bureau count"
+  },
+  {
+   "name": "revol_bal",
+   "type": "float",
+   "min": 0,
+   "max": 5000000,
+   "cleaning": "none; capped at p99.5 = 176,687.00, then log1p",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "40 real zero balances; heavy tail is genuine"
+  },
+  {
+   "name": "revol_util",
+   "type": "float",
+   "min": 0,
+   "max": 500,
+   "cleaning": "absolute value; capped at p99.5 = 99.20; if reported as a fraction of 1 (2016 holdout) it is multiplied by 100 when that matches revol_bal / total_rev_hi_lim * 100",
+   "missing_strategy": "median 57.00 (fit set)",
+   "reliability": "high",
+   "reliability_reason": "sign flips repaired; matches balance/limit recomputed"
+  },
+  {
+   "name": "bc_util",
+   "type": "float",
+   "min": 0,
+   "max": 500,
+   "cleaning": "absolute value; capped at p99.5 = 102.89",
+   "missing_strategy": "median 69.40 (fit set) + flag bc_util_missing",
+   "reliability": "medium",
+   "reliability_reason": "sign flips assumed fixed by analogy; no limit column to recompute"
+  },
+  {
+   "name": "tot_cur_bal",
+   "type": "float",
+   "min": 0,
+   "max": 10000000,
+   "cleaning": "none; capped at p99.5 = 755,883.88, then log1p",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "heavy tail is genuine (mortgage holders)"
+  },
+  {
+   "name": "avg_cur_bal",
+   "type": "float",
+   "min": 0,
+   "max": 1000000,
+   "cleaning": "none; capped at p99.5 = 85,150.24, then log1p",
+   "missing_strategy": "reject",
+   "reliability": "medium",
+   "reliability_reason": "approximately tot_cur_bal / open_acc (derived)"
+  },
+  {
+   "name": "total_rev_hi_lim",
+   "type": "float",
+   "min": 0,
+   "max": 5000000,
+   "cleaning": "none; capped at p99.5 = 184,690.00, then log1p",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "bureau limit"
+  },
+  {
+   "name": "tot_hi_cred_lim",
+   "type": "float",
+   "min": 0,
+   "max": 10000000,
+   "cleaning": "none; capped at p99.5 = 869,519.76, then log1p",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "bureau limit"
+  },
+  {
+   "name": "mort_acc",
+   "type": "int",
+   "min": 0,
+   "max": 50,
+   "cleaning": "none",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "bureau count"
+  },
+  {
+   "name": "acc_open_past_24mths",
+   "type": "int",
+   "min": 0,
+   "max": 100,
+   "cleaning": "none",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "bureau count"
+  },
+  {
+   "name": "num_tl_op_past_12m",
+   "type": "int",
+   "min": 0,
+   "max": 50,
+   "cleaning": "none",
+   "missing_strategy": "reject",
+   "reliability": "high",
+   "reliability_reason": "bureau count"
+  },
+  {
+   "name": "emp_title",
+   "type": "str",
+   "min": null,
+   "max": null,
+   "cleaning": "lowercased, punctuation removed, mapped to 10 job groups by keyword; groups under 300 loans merged into other",
+   "missing_strategy": "own group unknown",
+   "reliability": "low",
+   "reliability_reason": "free text, 9,093 distinct values"
+  }
+ ],
+ "excluded_columns": {
+  "outcome_derived": [
+   "bureau_recovery_flag"
+  ],
+  "post_issue_servicing": [
+   "total_pymnt",
+   "total_rec_prncp",
+   "total_rec_int",
+   "recoveries",
+   "last_pymnt_d",
+   "last_pymnt_amnt",
+   "last_credit_pull_d",
+   "last_fico_range_high",
+   "last_fico_range_low",
+   "debt_settlement_flag"
+  ],
+  "reason": "recorded after the loan was issued; bureau_recovery_flag defaults 100% when 1 and is always 0 in the holdout, AUC 0.874 alone"
+ },
+ "ignored_input_columns": [
+  "bureau_recovery_flag"
+ ],
+ "not_model_inputs": {
+  "zip_code": "sparse (median 10 loans per zip3) and a proxy risk",
+  "addr_state": "IV 0.013; proxy risk; used only to monitor outcomes by region",
+  "title": "free text, redundant with purpose",
+  "application_type": "single category in training; out-of-domain when Joint App"
+ },
+ "input_rules": [
+  "installment must match loan_amnt, int_rate and term within $1 (after the x10 repair) or the record fails validation",
+  "term is 36 or 60; Joint App is scored but flagged out_of_domain",
+  "dti outside 0-100 is capped and flagged",
+  "revol_util on a 0-1 scale is detected row by row against revol_bal / total_rev_hi_lim"
+ ],
+ "factors": [
+  {
+   "name": "credit_footprint",
+   "method": "factor_analysis_varimax_regression_scores",
+   "variance_explained": 0.144,
+   "top_loadings": {
+    "tot_hi_cred_lim": 0.94,
+    "tot_cur_bal": 0.92,
+    "mort_acc": 0.56
+   }
+  },
+  {
+   "name": "revolving_capacity",
+   "method": "factor_analysis_varimax_regression_scores",
+   "variance_explained": 0.117,
+   "top_loadings": {
+    "total_rev_hi_lim": 0.86,
+    "revol_bal": 0.74,
+    "loan_amnt": 0.48
+   }
+  },
+  {
+   "name": "utilization_stress",
+   "method": "factor_analysis_varimax_regression_scores",
+   "variance_explained": 0.113,
+   "top_loadings": {
+    "revol_util": 0.92,
+    "bc_util": 0.85,
+    "fico_mid": -0.58
+   }
+  },
+  {
+   "name": "recent_activity",
+   "method": "factor_analysis_varimax_regression_scores",
+   "variance_explained": 0.106,
+   "top_loadings": {
+    "acc_open_past_24mths": 0.86,
+    "num_tl_op_past_12m": 0.75,
+    "open_acc": 0.49
+   }
+  },
+  {
+   "name": "public_records",
+   "method": "factor_analysis_varimax_regression_scores",
+   "variance_explained": 0.084,
+   "top_loadings": {
+    "pub_rec_bankruptcies": 0.86,
+    "pub_rec": 0.82,
+    "fico_mid": -0.21
+   }
+  },
+  {
+   "name": "debt_burden",
+   "method": "factor_analysis_varimax_regression_scores",
+   "variance_explained": 0.049,
+   "top_loadings": {
+    "dti": 0.58,
+    "annual_inc": -0.56,
+    "open_acc": 0.33
+   }
+  }
+ ],
+ "pca": {
+  "n_components": 7,
+  "variance_ratio": [
+   0.2415,
+   0.1306,
+   0.1043,
+   0.0918,
+   0.0699,
+   0.0555,
+   0.054
+  ],
+  "input_columns": [
+   "annual_inc",
+   "revol_bal",
+   "tot_cur_bal",
+   "avg_cur_bal",
+   "total_rev_hi_lim",
+   "tot_hi_cred_lim",
+   "revol_util",
+   "bc_util",
+   "loan_amnt",
+   "dti",
+   "open_acc",
+   "total_acc",
+   "mort_acc",
+   "acc_open_past_24mths",
+   "num_tl_op_past_12m",
+   "inq_last_6mths",
+   "delinq_2yrs",
+   "pub_rec",
+   "pub_rec_bankruptcies",
+   "fico_mid",
+   "credit_history_months"
+  ]
+ },
+ "woe": {
+  "min_group": 300,
+  "job_rules": [
+   [
+    "healthcare",
+    "nurse|\\brn\\b|\\br n\\b|\\blpn\\b|\\bcna\\b|physician|doctor|medical|dental|pharmac|therap|hospital|health|clinic|paramedic|social worker|counselor|caregiver"
+   ],
+   [
+    "education",
+    "teacher|professor|school|instructor|educat|teaching|lecturer|college|university"
+   ],
+   [
+    "public_safety_gov",
+    "police|firefight|fire dep|sheriff|deputy|correction|army|navy|military|marine|government|city of|county|state of|postal|usps|federal|trooper|letter carrier"
+   ],
+   [
+    "executive_owner",
+    "owner|president|\\bceo\\b|\\bcfo\\b|\\bcoo\\b|director|\\bvp\\b|partner|executive|chief|principal"
+   ],
+   [
+    "manager_supervisor",
+    "manager|management|supervisor|foreman|superintendent|\\blead\\b|team leader"
+   ],
+   [
+    "professional_technical",
+    "engineer|analyst|developer|programmer|software|\\bit\\b|network|consultant|accountant|bookkeep|attorney|lawyer|paralegal|underwriter|financial|advisor|architect|scientist|technician|\\btech\\b|designer|auditor|controller"
+   ],
+   [
+    "transport_trades",
+    "driver|truck|pilot|delivery|mechanic|electrician|operator|machinist|welder|carpenter|plumber|construction|installer|maintenance|warehouse|assembler"
+   ],
+   [
+    "sales_customer",
+    "sales|account exec|representative|\\brep\\b|agent|broker|customer|cashier|retail|clerk|associate|teller|banker"
+   ],
+   [
+    "admin_support",
+    "assistant|secretary|admin|coordinator|specialist|receptionist|processor"
+   ],
+   [
+    "service_hospitality",
+    "server|cook|chef|bartender|waiter|housekeep|security|janitor|custodian|barber|stylist|hotel|restaurant|cleaner|attendant"
+   ]
+  ],
+  "job_merged": [
+   "service_hospitality"
+  ],
+  "purpose_merged": [
+   "car",
+   "house",
+   "major_purchase",
+   "medical",
+   "moving",
+   "renewable_energy",
+   "small_business",
+   "vacation",
+   "wedding"
+  ],
+  "states_merged": [
+   "AK",
+   "AL",
+   "AR",
+   "CT",
+   "DC",
+   "DE",
+   "HI",
+   "IN",
+   "KS",
+   "KY",
+   "LA",
+   "MA",
+   "MN",
+   "MO",
+   "MS",
+   "MT",
+   "NE",
+   "NH",
+   "NM",
+   "NV",
+   "OK",
+   "OR",
+   "RI",
+   "SC",
+   "SD",
+   "TN",
+   "UT",
+   "VT",
+   "WI",
+   "WV",
+   "WY"
+  ],
+  "emp_length_map": {
+   "< 1 year": 0,
+   "1 year": 1,
+   "2 years": 2,
+   "3 years": 3,
+   "4 years": 4,
+   "5 years": 5,
+   "6 years": 6,
+   "7 years": 7,
+   "8 years": 8,
+   "9 years": 9,
+   "10+ years": 10
+  },
+  "numeric_bin_edges": {
+   "annual_inc": [
+    35000.0,
+    42000.0,
+    50000.0,
+    56000.0,
+    65000.0,
+    72000.0,
+    82000.0,
+    97000.0,
+    120000.0
+   ],
+   "loan_amnt": [
+    5000.0,
+    7200.0,
+    9600.0,
+    10800.0,
+    12975.0,
+    15000.0,
+    18000.0,
+    21000.0,
+    27500.0
+   ],
+   "installment": [
+    170.456,
+    239.74400000000003,
+    292.10400000000004,
+    336.9,
+    388.11,
+    466.90200000000027,
+    534.4080000000001,
+    635.07,
+    790.5360000000001
+   ],
+   "int_rate": [
+    7.9,
+    10.15,
+    11.67,
+    12.99,
+    13.98,
+    14.98,
+    15.88,
+    17.57,
+    19.97
+   ],
+   "dti": [
+    7.41,
+    10.49,
+    12.84,
+    15.01,
+    17.23,
+    19.54,
+    22.00800000000003,
+    24.93,
+    28.626000000000005
+   ],
+   "revol_util": [
+    25.1,
+    36.0,
+    43.8,
+    50.7,
+    57.0,
+    63.4,
+    70.3,
+    77.9,
+    86.7
+   ],
+   "bc_util": [
+    26.6,
+    41.1,
+    52.1,
+    61.6,
+    69.4,
+    76.8,
+    84.2,
+    90.9,
+    96.3
+   ],
+   "revol_bal": [
+    3686.0,
+    5614.0,
+    7609.800000000007,
+    9756.0,
+    12112.0,
+    14820.20000000001,
+    18357.20000000001,
+    23773.200000000004,
+    33095.0
+   ],
+   "tot_cur_bal": [
+    13570.2,
+    23148.8,
+    34110.00000000001,
+    49541.40000000001,
+    80428.0,
+    133395.60000000003,
+    182868.60000000003,
+    241608.80000000005,
+    331402.60000000003
+   ],
+   "avg_cur_bal": [
+    1599.0,
+    2560.0,
+    3557.0,
+    5068.6,
+    7554.0,
+    11664.0,
+    16210.400000000009,
+    22162.000000000004,
+    31763.800000000003
+   ],
+   "total_rev_hi_lim": [
+    8200.0,
+    11900.0,
+    15100.0,
+    18600.0,
+    22800.0,
+    27500.0,
+    33900.0,
+    42500.0,
+    58600.0
+   ],
+   "tot_hi_cred_lim": [
+    25514.800000000003,
+    39611.200000000004,
+    53901.00000000001,
+    73739.6,
+    108769.0,
+    162163.60000000003,
+    215302.8,
+    283263.0,
+    382680.6
+   ],
+   "open_acc": [
+    6.0,
+    7.0,
+    9.0,
+    10.0,
+    11.0,
+    12.0,
+    13.0,
+    15.0,
+    18.0
+   ],
+   "total_acc": [
+    12.0,
+    16.0,
+    18.0,
+    21.0,
+    24.0,
+    27.0,
+    30.0,
+    35.0,
+    41.0
+   ],
+   "acc_open_past_24mths": [
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    5.0,
+    6.0,
+    8.0
+   ],
+   "num_tl_op_past_12m": [
+    1.0,
+    2.0,
+    3.0,
+    4.0
+   ],
+   "mths_since_last_delinq": [
+    8.0,
+    14.0,
+    20.0,
+    26.0,
+    34.0,
+    43.0,
+    53.0,
+    66.0
+   ],
+   "fico_mid": [
+    667.0,
+    672.0,
+    677.0,
+    682.0,
+    687.0,
+    697.0,
+    707.0,
+    717.0,
+    732.0
+   ],
+   "credit_history_months": [
+    99.0,
+    127.0,
+    146.0,
+    163.0,
+    179.0,
+    199.0,
+    225.0,
+    260.0,
+    316.0
+   ],
+   "loan_to_income": [
+    0.08333333333333333,
+    0.11764705882352941,
+    0.14878422144628314,
+    0.17777777777777778,
+    0.20833333333333334,
+    0.24,
+    0.2785714285714286,
+    0.32590663130576963,
+    0.37989234449760767
+   ],
+   "installment_to_income": [
+    0.03234885818181818,
+    0.044724597480954496,
+    0.0551612,
+    0.06551370000000001,
+    0.0765156923076923,
+    0.08803492881355934,
+    0.10136711342894413,
+    0.11789193468711148,
+    0.13793514418604652
+   ]
+  },
+  "woe": {
+   "job_group": {
+    "admin_support": 0.051673,
+    "education": 0.140886,
+    "executive_owner": 0.201423,
+    "healthcare": 0.056408,
+    "manager_supervisor": 0.014096,
+    "other": -0.08455,
+    "professional_technical": 0.218887,
+    "public_safety_gov": 0.155295,
+    "sales_customer": -0.215005,
+    "transport_trades": -0.240079,
+    "unknown": -0.106354
+   },
+   "emp_length_g": {
+    "1-9y": -0.039414,
+    "10+y": 0.12948,
+    "<1y": -0.166113,
+    "MISSING": -0.154466
+   },
+   "purpose_g": {
+    "credit_card": 0.199197,
+    "debt_consolidation": -0.067991,
+    "home_improvement": 0.135536,
+    "other": -0.096913
+   },
+   "home_ownership": {
+    "MORTGAGE": 0.13903,
+    "OWN": 0.011528,
+    "RENT": -0.170273
+   },
+   "verification_status": {
+    "Not Verified": 0.35868,
+    "Source Verified": -0.117873,
+    "Verified": -0.138499
+   },
+   "term": {
+    "36": 0.311728,
+    "60": -0.638442
+   },
+   "application_type": {
+    "Individual": 0.0
+   },
+   "state_g": {
+    "AZ": -0.042712,
+    "CA": -0.037053,
+    "CO": 0.251075,
+    "FL": -0.039492,
+    "GA": 0.292263,
+    "IL": 0.140937,
+    "MD": -0.006705,
+    "MI": -0.146756,
+    "NC": -0.177457,
+    "NJ": -0.132318,
+    "NY": -0.182793,
+    "OH": 0.082047,
+    "OTHER_STATE": 0.006155,
+    "PA": -0.065513,
+    "TX": 0.142825,
+    "VA": 0.138759,
+    "WA": 0.180898
+   },
+   "inq_last_6mths_g": {
+    "0": 0.170872,
+    "1": -0.123168,
+    "2": -0.200701,
+    "3": -0.295621
+   },
+   "delinq_2yrs_g": {
+    "0": 0.022226,
+    "1": -0.056164,
+    "2": -0.152913
+   },
+   "pub_rec_g": {
+    "0": 0.008885,
+    "1": -0.046431
+   },
+   "pub_rec_bankruptcies_g": {
+    "0": 0.002718,
+    "1": -0.019122
+   },
+   "mort_acc_g": {
+    "0": -0.155504,
+    "1": -0.01914,
+    "2": 0.081602,
+    "3": 0.187432
+   },
+   "never_delinquent": {
+    "0": -0.034332,
+    "1": 0.040683
+   },
+   "bc_util_missing": {
+    "0": 0.003094,
+    "1": -0.265598
+   },
+   "bureau_recovery_flag": {
+    "0": 1.672456,
+    "1": -9.868451
+   },
+   "annual_inc": {
+    "00": -0.243787,
+    "01": -0.287561,
+    "02": -0.042018,
+    "03": -0.077407,
+    "04": -0.061127,
+    "05": 0.078965,
+    "06": 0.037865,
+    "07": 0.122297,
+    "08": 0.37559,
+    "09": 0.259305
+   },
+   "loan_amnt": {
+    "00": 0.30089,
+    "01": 0.17551,
+    "02": 0.113902,
+    "03": -0.039813,
+    "04": -0.086466,
+    "05": 0.015651,
+    "06": -0.032715,
+    "07": -0.034138,
+    "08": -0.191307,
+    "09": -0.187497
+   },
+   "installment": {
+    "00": 0.387483,
+    "01": 0.157599,
+    "02": -0.205553,
+    "03": 0.04967,
+    "04": -0.099774,
+    "05": 0.025568,
+    "06": -0.095773,
+    "07": -0.014841,
+    "08": -0.073173,
+    "09": -0.053157
+   },
+   "int_rate": {
+    "00": 1.666537,
+    "01": 1.041369,
+    "02": 0.602558,
+    "03": 0.217174,
+    "04": 0.095609,
+    "05": -0.034576,
+    "06": -0.257669,
+    "07": -0.367158,
+    "08": -0.580702,
+    "09": -0.921042
+   },
+   "dti": {
+    "00": 0.481,
+    "01": 0.268498,
+    "02": 0.262853,
+    "03": 0.160056,
+    "04": 0.067472,
+    "05": -0.022424,
+    "06": -0.160388,
+    "07": -0.201194,
+    "08": -0.253135,
+    "09": -0.384444
+   },
+   "revol_util": {
+    "00": 0.367701,
+    "01": 0.108539,
+    "02": 0.184752,
+    "03": 0.073155,
+    "04": 0.027958,
+    "05": -0.011094,
+    "06": -0.154333,
+    "07": -0.146484,
+    "08": -0.222002,
+    "09": -0.133563
+   },
+   "bc_util": {
+    "00": 0.275155,
+    "01": 0.271133,
+    "02": 0.167115,
+    "03": 0.168746,
+    "04": 0.068569,
+    "05": -0.158135,
+    "06": -0.109102,
+    "07": -0.047969,
+    "08": -0.107741,
+    "09": -0.407939
+   },
+   "revol_bal": {
+    "00": 0.059811,
+    "01": -0.132003,
+    "02": 0.033052,
+    "03": -0.038987,
+    "04": 0.013273,
+    "05": -0.001394,
+    "06": -0.015921,
+    "07": -0.08112,
+    "08": 0.104414,
+    "09": 0.074239
+   },
+   "tot_cur_bal": {
+    "00": 0.043874,
+    "01": -0.136475,
+    "02": -0.297243,
+    "03": -0.158654,
+    "04": -0.140072,
+    "05": -0.091186,
+    "06": 0.130762,
+    "07": 0.185764,
+    "08": 0.299995,
+    "09": 0.288855
+   },
+   "avg_cur_bal": {
+    "00": -0.061684,
+    "01": -0.248715,
+    "02": -0.135613,
+    "03": -0.232804,
+    "04": -0.071854,
+    "05": -0.062533,
+    "06": 0.047224,
+    "07": 0.158419,
+    "08": 0.207212,
+    "09": 0.572697
+   },
+   "total_rev_hi_lim": {
+    "00": -0.255762,
+    "01": -0.008358,
+    "02": -0.065108,
+    "03": -0.136165,
+    "04": 0.006598,
+    "05": 0.001961,
+    "06": -0.106551,
+    "07": 0.095277,
+    "08": 0.178393,
+    "09": 0.390716
+   },
+   "tot_hi_cred_lim": {
+    "00": -0.034235,
+    "01": -0.261201,
+    "02": -0.256165,
+    "03": -0.068052,
+    "04": -0.135613,
+    "05": 0.003479,
+    "06": 0.013273,
+    "07": 0.169294,
+    "08": 0.336469,
+    "09": 0.374752
+   },
+   "open_acc": {
+    "00": 0.223257,
+    "01": 0.081718,
+    "02": -0.070779,
+    "03": -0.018048,
+    "04": 0.037532,
+    "05": -0.090967,
+    "06": 0.060056,
+    "07": 0.026978,
+    "08": -0.031298,
+    "09": -0.192995
+   },
+   "total_acc": {
+    "00": -0.09093,
+    "01": 0.022169,
+    "02": 0.13521,
+    "03": -0.009374,
+    "04": -0.057417,
+    "05": -0.02003,
+    "06": 0.092903,
+    "07": 0.060217,
+    "08": -0.090432,
+    "09": 0.016474
+   },
+   "acc_open_past_24mths": {
+    "00": 0.467339,
+    "01": 0.256204,
+    "02": 0.116604,
+    "03": 0.027239,
+    "04": -0.080655,
+    "05": -0.179959,
+    "06": -0.307194,
+    "07": -0.543198
+   },
+   "num_tl_op_past_12m": {
+    "00": 0.243176,
+    "01": -0.047801,
+    "02": -0.185795,
+    "03": -0.207396,
+    "04": -0.539141
+   },
+   "mths_since_last_delinq": {
+    "00": -0.087388,
+    "01": -0.140913,
+    "02": 0.005998,
+    "03": 0.072814,
+    "04": -0.124878,
+    "05": 0.04304,
+    "06": -0.008448,
+    "07": 0.038285,
+    "08": -0.031717,
+    "MISSING": 0.041959
+   },
+   "fico_mid": {
+    "00": -0.313011,
+    "01": -0.324972,
+    "02": -0.140289,
+    "03": -0.145313,
+    "04": -0.127027,
+    "05": 0.092817,
+    "06": 0.176083,
+    "07": 0.124286,
+    "08": 0.448766,
+    "09": 0.875353
+   },
+   "credit_history_months": {
+    "00": -0.157322,
+    "01": -0.064617,
+    "02": -0.142397,
+    "03": -0.076902,
+    "04": 0.00053,
+    "05": -0.011288,
+    "06": 0.100517,
+    "07": 0.085873,
+    "08": 0.102694,
+    "09": 0.213589
+   },
+   "loan_to_income": {
+    "00": 0.527437,
+    "01": 0.425899,
+    "02": 0.318579,
+    "03": 0.154504,
+    "04": 0.128197,
+    "05": 0.034437,
+    "06": -0.15406,
+    "07": -0.314306,
+    "08": -0.40078,
+    "09": -0.392171
+   },
+   "installment_to_income": {
+    "00": 0.580096,
+    "01": 0.419065,
+    "02": 0.12099,
+    "03": 0.224144,
+    "04": -0.08112,
+    "05": -0.030313,
+    "06": -0.132003,
+    "07": -0.214093,
+    "08": -0.354114,
+    "09": -0.264458
+   },
+   "grade_g": {
+    "A": 1.486239,
+    "B": 0.540635,
+    "C": -0.117952,
+    "D": -0.451602,
+    "E": -0.867867,
+    "F-G": -1.165736
+   }
+  },
+  "scorecard_vars": [
+   "home_ownership",
+   "verification_status",
+   "term",
+   "inq_last_6mths_g",
+   "mort_acc_g",
+   "annual_inc",
+   "loan_amnt",
+   "installment",
+   "dti",
+   "revol_util",
+   "bc_util",
+   "tot_cur_bal",
+   "avg_cur_bal",
+   "total_rev_hi_lim",
+   "tot_hi_cred_lim",
+   "acc_open_past_24mths",
+   "num_tl_op_past_12m",
+   "fico_mid",
+   "loan_to_income",
+   "installment_to_income"
+  ],
+  "platform_vars": [
+   "grade_g",
+   "int_rate"
+  ],
+  "excluded": {
+   "leak": [
+    "bureau_recovery_flag"
+   ],
+   "constant_in_training": [
+    "application_type"
+   ]
+  },
+  "iv": {
+   "job_group": 0.018,
+   "emp_length_g": 0.0096,
+   "purpose_g": 0.0138,
+   "home_ownership": 0.0214,
+   "verification_status": 0.046,
+   "term": 0.1958,
+   "application_type": 0.0,
+   "state_g": 0.0132,
+   "inq_last_6mths_g": 0.0311,
+   "delinq_2yrs_g": 0.0024,
+   "pub_rec_g": 0.0004,
+   "pub_rec_bankruptcies_g": 0.0001,
+   "mort_acc_g": 0.0211,
+   "never_delinquent": 0.0014,
+   "bc_util_missing": 0.0008,
+   "bureau_recovery_flag": 9.3733,
+   "annual_inc": 0.0373,
+   "loan_amnt": 0.0217,
+   "installment": 0.0232,
+   "int_rate": 0.4501,
+   "dti": 0.0662,
+   "revol_util": 0.0288,
+   "bc_util": 0.0434,
+   "revol_bal": 0.0047,
+   "tot_cur_bal": 0.038,
+   "avg_cur_bal": 0.0494,
+   "total_rev_hi_lim": 0.028,
+   "tot_hi_cred_lim": 0.0423,
+   "open_acc": 0.0125,
+   "total_acc": 0.0046,
+   "acc_open_past_24mths": 0.0816,
+   "num_tl_op_past_12m": 0.0539,
+   "mths_since_last_delinq": 0.0042,
+   "fico_mid": 0.1078,
+   "credit_history_months": 0.0127,
+   "loan_to_income": 0.1012,
+   "installment_to_income": 0.0781,
+   "grade_g": 0.4532
+  }
+ },
+ "caps": {
+  "annual_inc": {
+   "cap_p99.5": 300000.0
+  },
+  "revol_bal": {
+   "cap_p99.5": 176687.00000000093
+  },
+  "tot_cur_bal": {
+   "cap_p99.5": 755883.8800000007
+  },
+  "avg_cur_bal": {
+   "cap_p99.5": 85150.24000000006
+  },
+  "total_rev_hi_lim": {
+   "cap_p99.5": 184690.00000000015
+  },
+  "tot_hi_cred_lim": {
+   "cap_p99.5": 869519.7600000004
+  },
+  "revol_util": {
+   "cap_p99.5": 99.2
+  },
+  "bc_util": {
+   "cap_p99.5": 102.89349999999996
+  },
+  "dti": {
+   "cap_p99.5": null,
+   "valid_range": [
+    0,
+    100
+   ],
+   "reason": "no percentile cap: 2015 loans above the old p99.5 (36.94) default at 34.5% vs 19.8% below; open-ended top WoE bin instead"
+  },
+  "missing": {
+   "bc_util": {
+    "strategy": "fill with fit median + flag bc_util_missing",
+    "fill": 69.4
+   },
+   "revol_util": {
+    "strategy": "fill with fit median, no flag (4 rows)",
+    "fill": 57.0
+   }
+  },
+  "features": {
+   "credit_history_months_fill": 179.0
+  }
+ }
+}
