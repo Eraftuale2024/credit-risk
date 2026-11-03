@@ -3,3 +3,12 @@ __pycache__/
 *.py[cod]
 .streamlit/secrets.toml
 .env
+
+# Credit-risk project: private data and local artifacts
+source_project/data/
+source_project/contract/analytical_dataset.parquet
+source_project/contract/reference_transforms.csv
+source_project/holdout_pd.csv
+source_project/reports/diag_output.txt
+source_project/.venv/
+source_project/.ipynb_checkpoints/

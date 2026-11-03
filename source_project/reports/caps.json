@@ -1,0 +1,47 @@
+{
+ "annual_inc": {
+  "cap_p99.5": 300000.0
+ },
+ "revol_bal": {
+  "cap_p99.5": 176687.00000000093
+ },
+ "tot_cur_bal": {
+  "cap_p99.5": 755883.8800000007
+ },
+ "avg_cur_bal": {
+  "cap_p99.5": 85150.24000000006
+ },
+ "total_rev_hi_lim": {
+  "cap_p99.5": 184690.00000000015
+ },
+ "tot_hi_cred_lim": {
+  "cap_p99.5": 869519.7600000004
+ },
+ "revol_util": {
+  "cap_p99.5": 99.2
+ },
+ "bc_util": {
+  "cap_p99.5": 102.89349999999996
+ },
+ "dti": {
+  "cap_p99.5": null,
+  "valid_range": [
+   0,
+   100
+  ],
+  "reason": "no percentile cap: 2015 loans above the old p99.5 (36.94) default at 34.5% vs 19.8% below; open-ended top WoE bin instead"
+ },
+ "missing": {
+  "bc_util": {
+   "strategy": "fill with fit median + flag bc_util_missing",
+   "fill": 69.4
+  },
+  "revol_util": {
+   "strategy": "fill with fit median, no flag (4 rows)",
+   "fill": 57.0
+  }
+ },
+ "features": {
+  "credit_history_months_fill": 179.0
+ }
+}

@@ -1,0 +1,18 @@
+issue,rows,decision,reason
+"same loan entered twice (emp_title case, dti +0.01)",600,"drop 2nd row, keep first",defaulted/amount/date identical; differences cosmetic
+emp_title inconsistent capitalization,528,fix,normalize case/spaces; handled in A5 job grouping
+"issue_d mixed date formats (ISO, MM/YYYY)",1200,fix,parsed with explicit formats; 0 failures expected
+"earliest_cr_line mixed date formats (ISO, MM/YYYY)",1200,fix,parsed with explicit formats; 0 failures expected
+"bureau_recovery_flag: 100% default when 1, always 0 in holdout",4207,exclude,recorded after outcome (label leak); AUC alone ~0.87
+all loan_servicing columns,30000,"exclude from model, audit only",recorded after issue (Mar 2019 snapshot)
+addr_state case/space/full-name inconsistencies,3000,fix,"trim, uppercase, map full names to codes"
+annual_inc < 1000 (entered in thousands),899,fix: x1000,distribution after x1000 matches the rest (median 63.5k vs 65k)
+loan_amnt inflated x10 (inconsistent with installment),300,fix: divide by 10,amount recomputed from installment/rate/term matches exactly; lands on multiples of 25
+fico_range_low > fico_range_high (swapped),150,fix: swap back,gap is exactly 4 as in all normal rows
+earliest_cr_line after issue_d,300,set missing + flag cr_line_invalid,impossible at application time; true date not recoverable
+"installment inconsistent with amount/rate/term; rate or installment contradicts sub_grade (8 at int_rate 6.00, 3 impossible installments)",12,drop,"no field provably correct, solved rate outside sub_grade range; 0.04% of rows"
+label vs servicing: defaulted=1 but principal fully repaid,1,"flag, keep",plausible (unpaid interest/fees); other 5 cross-file checks found 0 contradictions
+revol_util negative (sign flipped),295,fix: absolute value,"abs value matches balance/limit recomputed (median gap 0.03, same as clean rows)"
+bc_util negative (sign flipped),289,fix: absolute value,"same pattern; no limit column to verify, so an assumption"
+dti above 100,1,flag; spec valid range 0-100,"pre-2015 max is 39.97; probably an error, unproven"
+fico_range_high - low != 4,2,"flag, keep",all other rows have a gap of exactly 4

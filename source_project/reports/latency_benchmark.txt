@@ -1,0 +1,4 @@
+Latency benchmark: 300 single-record predictions through the full path (validation, transform, model, reason codes)
+startup (load model, transform, spec): 0.03 s
+p50 61.2 ms | p95 74.3 ms | p99 119.1 ms | max 129.1 ms | mean 63.7 ms
+requirement: under 100 ms per application | rejected by validation: 0

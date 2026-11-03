@@ -1,0 +1,43 @@
+seed: 42
+contract:
+  version: "1.0.0"
+  dir: contract
+  dataset: contract/analytical_dataset.parquet
+  transform: contract/transform.joblib
+  spec: contract/data_spec.json
+split:
+  fit_cutoff: "2014-12-31"
+  cv_test_quarters: ["2014Q1", "2014Q2", "2014Q3", "2014Q4"]
+paths:
+  model: models/pd_model.joblib
+  metadata: models/metadata.json
+  log: reports/experiment_log.csv
+features:
+  scorecard_exclude: [installment, installment_to_income]
+  raw: [loan_amnt, term, annual_inc, dti, fico_mid, inq_last_6mths, delinq_2yrs, mths_since_last_delinq, pub_rec,
+        pub_rec_bankruptcies, open_acc, total_acc, revol_bal, revol_util, bc_util, tot_cur_bal, avg_cur_bal,
+        total_rev_hi_lim, tot_hi_cred_lim, mort_acc, acc_open_past_24mths, num_tl_op_past_12m, credit_history_months,
+        loan_to_income, never_delinquent, bc_util_missing, woe_home_ownership, woe_verification_status]
+  factors: [credit_footprint, revolving_capacity, utilization_stress, recent_activity, public_records, debt_burden]
+monotone:
+  term: 1
+  dti: 1
+  revol_util: 1
+  loan_to_income: 1
+  acc_open_past_24mths: 1
+  fico_mid: -1
+  annual_inc: -1
+scorecard:
+  C: [0.01, 0.1, 1.0]
+lgbm:
+  fixed: {subsample: 0.8, subsample_freq: 1, colsample_bytree: 0.8, reg_lambda: 5.0}
+  grid:
+    - {n_estimators: 200, learning_rate: 0.03, num_leaves: 8, min_child_samples: 100}
+    - {n_estimators: 400, learning_rate: 0.03, num_leaves: 8, min_child_samples: 100}
+    - {n_estimators: 200, learning_rate: 0.03, num_leaves: 16, min_child_samples: 100}
+    - {n_estimators: 400, learning_rate: 0.03, num_leaves: 16, min_child_samples: 100}
+policy:
+  gain: 0.10
+  loss: 0.70
+  approve: 0.125
+  decline: 0.25
